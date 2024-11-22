@@ -1,7 +1,5 @@
 'use client';
 
-import { redirect } from 'next/navigation';
-import { useSession } from '~/providers/session';
 import { Sidebar } from '~/components/dashboard/sidebar';
 import { Navbar } from '~/components/navbar';
 import { Separator } from '~/components/ui/separator';
@@ -13,7 +11,6 @@ import type { Dashboard } from '~/types';
 import type { ReactNode } from 'react';
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
-    const { status } = useSession();
     const { dashboard, setDashboard } = useDashboard();
 
     async function fetchDashboard() {
