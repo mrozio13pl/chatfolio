@@ -1,0 +1,209 @@
+import { Callout, Tabs } from 'nextra/components';
+import { Badge, Status } from '~/components/docs';
+
+# Messaging
+
+<h3>
+    <Badge className="text-sm">POST</Badge> `/api/v1/messages`
+</h3>
+
+Send and receive messages from your chatbot.
+
+## Params
+
+JSON request body.
+
+<div className="mt-2 rounded-lg border border-white/5 [&_div]:border-t [&_div]:border-t-white/5 [&_div]:py-2 [&_div]:px-4">
+    <div>
+        `clientId` <span className="text-gray-500">string</span>{' '}
+        <span className="text-red-500">required</span>
+        <br /> Your client ID from your [dashboard](/dashboard).
+    </div>
+    <div>
+        `message` <span className="text-gray-500">string</span>{' '}
+        <span className="text-red-500">required</span>
+        <br /> Prompt message to your chatbot.
+    </div>
+    <div>
+        `stream` <span className="text-gray-500">boolean</span>{' '}
+        <span className="text-blue-400">(default: false)</span>
+        <br /> Whether to stream the response or respond with JSON.
+    </div>
+    <div>
+        `messages` <span className="text-gray-500">[message](#message)</span>{' '}
+        <br />
+        Message history that can be used for context.
+    </div>
+</div>
+
+## Response
+
+Response can be in one of the following status codes:
+
+<Tabs items={[
+    <Status status={200} />,
+    <Status status={403} />,
+    <Status status={422} />,
+    <Status status={429} />,
+]}>
+    <Tabs.Tab>
+
+    Success <Badge variant='success' className='text-white'>200</Badge>
+
+    For immiediate responses.
+
+    ```json copy
+    {
+      "success": true,
+      "content": "Chatbot's response"
+    }
+    ```
+
+    For stream responses use the `stream` parameter and listen to the response stream. [Example](#example)
+
+    </Tabs.Tab>
+    <Tabs.Tab>
+    Forbidden <Badge variant='danger' className='text-white'>403</Badge>
+
+    This code is returned if the request is coming from a domain that is not set up as your website. This does not apply to requests coming from localhost.\
+    If you didn't provide a website url in your dashboard, all requests will be accepted.
+
+    ```json copy
+    {
+        "success": false,
+        "message": "Invalid origin"
+    }
+    ```
+
+    Set up your website url in your [dashboard](/dashboard/information#website).
+    </Tabs.Tab>
+    <Tabs.Tab>
+    Invalid data <Badge variant='danger' className='text-white'>422</Badge>
+
+    ```json copy
+    {
+        "success": false,
+        "issues": []
+    }
+    ```
+
+    <Callout>
+        The `issues` array contains validation errors reported by Valibot. For more details on the format and types of issues, refer to [Valibot's documentation](https://valibot.dev/guides/issues/).
+    </Callout>
+
+    <details>
+        <summary>Example validation error</summary>
+    ```json copy
+    {
+    	"success": false,
+    	"issues": [
+    		{
+    			"kind": "schema",
+    			"type": "custom",
+    			"input": "test",
+    			"expected": "unknown",
+    			"received": "\"test\"",
+    			"message": "Invalid clientId",
+    			"path": [
+    				{
+    					"type": "object",
+    					"origin": "value",
+    					"input": {
+    						"clientId": "test",
+    						"message": "Hello world"
+    					},
+    					"key": "clientId",
+    					"value": "test"
+    				}
+    			]
+    		}
+    	]
+    }
+    ```
+
+    > For invalid `clientId`.
+    </details>
+    </Tabs.Tab>
+
+    <Tabs.Tab>
+    Rate limit <Badge variant='danger' className='text-white'>429</Badge>
+
+    ```json copy
+    {
+        "success": false,
+    }
+    ```
+
+    Learn more about rate limits [here](/docs/api/rate-limits).
+    </Tabs.Tab>
+
+</Tabs>
+
+## Example
+
+Examples which can be used in the browser.
+
+<Tabs items={['JSON', 'Stream']} defaultIndex={0}>
+    <Tabs.Tab>
+```js copy
+const response = await fetch('http://chatfolio.me/api/v1/messages', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        message: 'Hello.',
+        clientId: 'CLIENT_ID',
+    })
+});
+const { content } = await response.json();
+ 
+console.log(content);
+```
+    </Tabs.Tab>
+    <Tabs.Tab>
+```js copy
+const { body } = await fetch('https://chatfolio.me/api/v1/messages', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        message: 'Hello.',
+        messages,
+        clientId: 'CLIENT_ID',
+        stream: true,
+    })
+});
+
+// decode the stream
+const reader = body!.getReader();
+const decoder = new TextDecoder('utf-8');
+
+while (true) {
+const { value, done } = await reader.read();
+
+    if (value) {
+        const chunk = decoder.decode(value);
+
+        console.log(chunk); // generated output chunk by chunk
+    }
+
+    if (done) break;
+
+}
+
+````
+    </Tabs.Tab>
+</Tabs>
+
+## Message
+
+Message type used for history.
+
+```ts copy
+interface Message {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+}
+````

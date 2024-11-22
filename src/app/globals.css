@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: #ffe766;
+        --secondary: #e6b800;
+        --base-100: #0c0c0c;
+        --base-200: #121212;
+        --base-300: #1e1e1e;
+        --content-100: #f4f4f4;
+        --content-200: #e0e0e0;
+        --content-300: #bdbdbd;
+    }
+}
+
+body {
+    font-family: 'DM Sans Variable', sans-serif;
+}
+
+.font-primary {
+    font-family: 'Roboto Slab Variable', serif;
+}
+
+::-webkit-scrollbar {
+    background-color: var(--base-200);
+    width: 0.75rem;
+    border-top-right-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--base-300);
+    border-radius: 1rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #252525;
+}

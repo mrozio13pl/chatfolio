@@ -1,0 +1,21 @@
+import { Callout } from 'nextra/components';
+
+# Using your own Mistral API key
+
+<Callout>
+    Chatfolio uses only single API key which is limited to __1 request per
+    second__ by Mistral. If you find this to be problematic, consider using your
+    own Mistral API key.
+</Callout>
+
+This key will be encrypted and stored in our database. You will not be asked for this key again and won’t be able to access it on your dashboard for security reasons. You can still remove it at any time and chatfolio's api key will be used as a fallback.
+
+## Create a Mistral API key
+
+[Create a Mistral API key](https://mistral.ai/docs/api-keys) and copy the key to your clipboard.
+
+Paste the key in the [dashboard](/dashboard/mistral-key) and click **Save**.
+
+## Reset the key
+
+If you want to reset the key, make sure the input is empty and click **Reset**.
