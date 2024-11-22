@@ -27,9 +27,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         }
     }
 
-    if (status === 'unauthorized') {
-        redirect('/logout');
-    }
+    // TODO: fix
+    // if (status === 'unauthorized') {
+    //     redirect('/logout');
+    // }
 
     if (!dashboard) {
         fetchDashboard();
