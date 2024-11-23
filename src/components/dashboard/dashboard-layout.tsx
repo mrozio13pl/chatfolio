@@ -1,5 +1,6 @@
 'use client';
 
+import { useSession } from '~/providers/session';
 import { Sidebar } from '~/components/dashboard/sidebar';
 import { Navbar } from '~/components/navbar';
 import { Separator } from '~/components/ui/separator';
@@ -7,10 +8,12 @@ import { Section } from '~/components/section';
 import { Chat } from '~/components/dashboard/chat';
 import { useDashboard } from '~/hooks/dashboard';
 import { api } from '~/lib/api';
+import { redirect } from 'next/navigation';
 import type { Dashboard } from '~/types';
 import type { ReactNode } from 'react';
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
+    const { status } = useSession();
     const { dashboard, setDashboard } = useDashboard();
 
     async function fetchDashboard() {
@@ -24,10 +27,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         }
     }
 
-    // TODO: fix
-    // if (status === 'unauthorized') {
-    //     redirect('/logout');
-    // }
+    if (status === 'unauthorized') {
+        redirect('/logout');
+    }
 
     if (!dashboard) {
         fetchDashboard();

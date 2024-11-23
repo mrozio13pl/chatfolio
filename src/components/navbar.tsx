@@ -35,7 +35,7 @@ export function Navbar() {
             </div>
             <div className="flex items-center justify-end gap-2">
                 {status === 'unauthorized' ? (
-                    <Link href="/login">
+                    <Link prefetch={false} href="/login">
                         <Button variant="outline" className="rounded-full">
                             Log in
                         </Button>
@@ -45,7 +45,7 @@ export function Navbar() {
                         <Link href="/dashboard">
                             <Button className="bg-secondary">Dashboard</Button>
                         </Link>
-                        <Link href="/logout">
+                        <Link prefetch={false} href="/logout">
                             <Button variant="outline" className="rounded-full">
                                 Log out
                             </Button>
