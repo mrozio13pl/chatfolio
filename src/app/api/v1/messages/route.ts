@@ -92,7 +92,11 @@ export async function POST(req: NextRequest) {
 
     const user =
         clientId === 'demo'
-            ? { portfolio: demoPortfolio, model: demoModel, messages: [] }
+            ? {
+                  portfolio: demoPortfolio,
+                  model: demoModel,
+                  messagesCounter: [],
+              }
             : await UserModel.findOne({ clientId })!;
 
     const origin = getRequestOrigin(req);
@@ -153,7 +157,7 @@ export async function POST(req: NextRequest) {
         user.messagesCounter.push({ count: 1, date: new Date() });
     }
 
-    await user.save();
+    await user.save?.();
 
     try {
         const stream = await chatbot(
