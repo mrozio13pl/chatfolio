@@ -1,13 +1,15 @@
 import { withoutProtocol, withoutTrailingSlash } from 'ufo';
-import isLocalhostIp from 'is-localhost-ip';
 import isValidDomainModule from 'is-valid-domain';
 import punycode from 'punycode/';
 import type { NextRequest } from 'next/server';
 
 export { withoutProtocol } from 'ufo';
 
-export async function isLocalhost(ip: string) {
-    return await isLocalhostIp(punycode.toASCII(ip));
+export function isLocalhost(ip: string) {
+    // from: https://github.com/Kikobeats/localhost-url-regex
+    return /^https?:\/\/(localhost|0|10|127|192(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}|\[::1?\])/gi.test(
+        punycode.toASCII(ip),
+    );
 }
 
 export function isValidDomain(domain: string) {

@@ -53,9 +53,6 @@ importers:
       github-markdown-css:
         specifier: ^5.8.0
         version: 5.8.0
-      is-localhost-ip:
-        specifier: ^2.0.0
-        version: 2.0.0
       is-valid-domain:
         specifier: ^0.1.6
         version: 0.1.6
@@ -2261,10 +2258,6 @@ packages:
     resolution: {integrity: sha512-KIYLCCJghfHZxqjYBE7rEy0OBuTd5xCHS7tHVgvCLkx7StIoaxwNW3hCALgEUjFfeRk+MG/Qxmp/vtETEF3tRA==}
     engines: {node: '>=14.16'}
     hasBin: true
-
-  is-localhost-ip@2.0.0:
-    resolution: {integrity: sha512-vlgs2cSgMOfnKU8c1ewgKPyum9rVrjjLLW2HBdL5i0iAJjOs8NY55ZBd/hqUTaYR0EO9CKZd3hVSC2HlIbygTQ==}
-    engines: {node: '>=12'}
 
   is-map@2.0.3:
     resolution: {integrity: sha512-1Qed0/Hr2m+YqxnM09CjA2d/i6YZNfF6R2oRAOj36eUdS6qIV/huPJNSEpKbupewFs+ZsJlxsjjPbc0/afW6Lw==}
@@ -6192,8 +6185,6 @@ snapshots:
   is-inside-container@1.0.0:
     dependencies:
       is-docker: 3.0.0
-
-  is-localhost-ip@2.0.0: {}
 
   is-map@2.0.3: {}
 

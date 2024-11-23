@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
         // we let thru requests without any origin
         origin &&
         !isEqual(origin, getDomainFromUrl(process.env.SITE_URL!)) &&
-        !(await isLocalhost(origin)) &&
+        !isLocalhost(origin) &&
         !isEqual(origin, user.portfolio.website)
     ) {
         return NextResponse.json(

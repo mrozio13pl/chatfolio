@@ -27,7 +27,7 @@ const portfolioSchema = v.objectAsync({
     website: v.pipeAsync(
         v.string(),
         v.customAsync<string>(async (value) => {
-            return !(await isLocalhost(value as string));
+            return !isLocalhost(value as string);
         }, 'Website can not be localhost'),
         v.custom<string>(
             (value) => isValidDomain(value as string),
