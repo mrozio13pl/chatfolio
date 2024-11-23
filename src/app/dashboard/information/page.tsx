@@ -98,7 +98,7 @@ export default function InformationPage() {
                 <h2 className="text-2xl font-semibold ml-2 font-primary">
                     Client ID
                 </h2>
-                <div className="flex px-4 py-1 rounded-xl text-content-300 border border-base-300 items-center gap-2 w-min">
+                <div className="flex px-4 py-1 rounded-xl text-content-300 border border-base-300 items-center gap-2 w-max">
                     <p>{dashboard.clientId}</p>
                     <Button
                         type="button"
