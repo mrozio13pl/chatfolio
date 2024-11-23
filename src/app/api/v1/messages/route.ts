@@ -4,6 +4,7 @@ import { connectMongoose } from '~/lib/mongoose';
 import { decrypt } from '~/lib/hash';
 import { getDomainFromUrl, getRequestOrigin, isLocalhost } from '~/lib/url';
 import { RequestQueue } from '~/lib/request-queue';
+import { isSameDay } from '~/lib/utils';
 import { UserModel } from '~/models/user';
 import { isEqual } from 'ufo';
 import { HTTPError } from 'ky';
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     const user =
         clientId === 'demo'
-            ? { portfolio: demoPortfolio, model: demoModel }
+            ? { portfolio: demoPortfolio, model: demoModel, messages: [] }
             : await UserModel.findOne({ clientId })!;
 
     const origin = getRequestOrigin(req);
@@ -135,6 +136,24 @@ export async function POST(req: NextRequest) {
     } else {
         onComplete = await mainQueue.schedule(req);
     }
+
+    if (
+        user.messagesCounter.some(({ date }: { date: Date }) =>
+            isSameDay(new Date(date), new Date()),
+        )
+    ) {
+        user.messagesCounter = user.messagesCounter.map(
+            ({ date, count }: { date: Date; count: number }) => {
+                if (isSameDay(new Date(date), new Date())) count += 1;
+
+                return { date, count };
+            },
+        );
+    } else {
+        user.messagesCounter.push({ count: 1, date: new Date() });
+    }
+
+    await user.save();
 
     try {
         const stream = await chatbot(

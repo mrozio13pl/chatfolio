@@ -1,7 +1,8 @@
 import { generateIdFromEntropySize } from 'lucia';
 import mongoose from 'mongoose';
+import ms from 'ms';
 import { nanoid } from 'nanoid';
-import type { Model, Portfolio } from '~/types';
+import type { MessageCounter, Model, Portfolio } from '~/types';
 
 export interface User {
     _id: string;
@@ -14,7 +15,18 @@ export interface User {
     portfolio: Portfolio;
     model: Model;
     mistralKey?: string;
+    messagesCounter: MessageCounter[];
 }
+
+const messagesCounterSchema = new mongoose.Schema(
+    {
+        date: { type: Date, default: Date.now },
+        count: { type: Number, default: 0 },
+    },
+    {
+        _id: false,
+    },
+);
 
 const portfolioSchema = new mongoose.Schema<Portfolio>(
     {
@@ -57,12 +69,25 @@ const userSchema = new mongoose.Schema<User>(
         portfolio: { type: portfolioSchema, default: () => ({}) },
         model: { type: modelSchema, default: () => ({}) },
         mistralKey: { type: String, trim: true, required: false },
+        messagesCounter: { type: [messagesCounterSchema], default: [] },
     },
     {
         _id: false,
         timestamps: true,
     },
 );
+
+userSchema.pre('save', async function (next) {
+    if (this.messagesCounter) {
+        const now = new Date();
+        this.messagesCounter = this.messagesCounter.filter((message) => {
+            const daysOld = (now.getTime() - message.date.getTime()) / ms('1d');
+            return daysOld <= 30;
+        });
+    }
+
+    next();
+});
 
 export const UserModel =
     mongoose.models.users<User> || mongoose.model<User>('users', userSchema);

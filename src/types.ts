@@ -20,6 +20,11 @@ export interface Model {
     presencePenalty: number;
 }
 
+export interface MessageCounter {
+    date: Date;
+    count: number;
+}
+
 export interface MistralModel {
     id: string;
     object: 'model';
@@ -45,6 +50,7 @@ export interface Dashboard {
     clientId: string;
     model: Model;
     portfolio: Portfolio;
+    messagesCounter: MessageCounter[];
 }
 
 export type ActionResults =

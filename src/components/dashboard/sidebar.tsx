@@ -6,7 +6,13 @@ import { withoutLeadingSlash } from 'ufo';
 import { clsx } from 'clsx';
 import Link from 'next/link';
 
-const paths: string[] = ['information', 'model', 'mistral-key', 'docs'];
+const paths: string[] = [
+    'information',
+    'model',
+    'mistral-key',
+    'stats',
+    'docs',
+];
 
 export function Sidebar() {
     const pathname = usePathname() ?? '/';
