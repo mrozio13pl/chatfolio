@@ -7,9 +7,7 @@ export { withoutProtocol } from 'ufo';
 
 export function isLocalhost(ip: string) {
     // from: https://github.com/Kikobeats/localhost-url-regex
-    return /^https?:\/\/(localhost|0|10|127|192(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}|\[::1?\])/gi.test(
-        punycode.toASCII(ip),
-    );
+    return /^(127\.0\.0\.1|localhost)(:\d{1,5})?$/.test(punycode.toASCII(ip));
 }
 
 export function isValidDomain(domain: string) {
