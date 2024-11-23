@@ -22,6 +22,7 @@ const portfolioSchema = new mongoose.Schema<Portfolio>(
             type: String,
             maxlength: 255,
         },
+        strictOrigin: { type: Boolean, default: true },
         socials: {
             type: [{ type: String, maxlength: 100 }],
             default: [],

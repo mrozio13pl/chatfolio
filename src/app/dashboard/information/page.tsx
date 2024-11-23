@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Loader } from '~/components/loader';
 import { api } from '~/lib/api';
 import { Dashboard } from '~/types';
+import { Checkbox } from '~/components/ui/checkbox';
 
 export default function InformationPage() {
     const { status, user } = useSession();
@@ -39,7 +40,10 @@ export default function InformationPage() {
     async function save(form: FormData) {
         setIsSaving(true);
 
-        const data = formToObject(form, { string: ['about', 'website'] });
+        const data = formToObject(form, {
+            boolean: ['strictOrigin'],
+            string: ['about', 'website'],
+        });
         const { success, error } = await savePortfolio(data);
 
         setIsSaving(false);
@@ -125,6 +129,23 @@ export default function InformationPage() {
                     name="website"
                     maxLength={255}
                 />
+            </section>
+            <section className="space-y-2 w-full m-4" id="strict-origin">
+                <div className="ml-2">
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-2xl font-semibold font-primary">
+                            Strict Origin
+                        </h2>
+                        <Checkbox
+                            name="strictOrigin"
+                            defaultChecked={dashboard.portfolio.strictOrigin}
+                        />
+                    </div>
+                    <p className="text-content-300">
+                        If enabled, the chatbot will only respond to requests
+                        from your website.
+                    </p>
+                </div>
             </section>
             <section className="space-y-2 w-full m-4" id="socials">
                 <h2 className="text-2xl font-semibold ml-2 font-primary">

@@ -3,12 +3,12 @@ import { chatbot } from '~/core/chatbot';
 import { connectMongoose } from '~/lib/mongoose';
 import { decrypt } from '~/lib/hash';
 import { getDomainFromUrl, getRequestOrigin, isLocalhost } from '~/lib/url';
+import { RequestQueue } from '~/lib/request-queue';
 import { UserModel } from '~/models/user';
 import { isEqual } from 'ufo';
+import { HTTPError } from 'ky';
 import * as v from 'valibot';
 import type { Model, Portfolio } from '~/types';
-import { RequestQueue } from '~/lib/request-queue';
-import { HTTPError } from 'ky';
 
 enum Role {
     User = 'user',
@@ -55,6 +55,7 @@ const demoModel: Model = {
 
 const demoPortfolio: Portfolio = {
     website: 'chatfolio.me',
+    strictOrigin: false,
     socials: ['https://github.com/mrozio13pl'],
     about: `
 Hi, I’m Alex Greenwood, 33 y/o a software engineer based in Austin, Texas—a city where tech meets tacos, and I indulge in both daily. I’ve been coding for over a decade, though if we’re counting my first “Hello, World!” printed on my family’s dinosaur of a PC, it’s closer to two. I’m passionate about crafting intuitive software, solving complex problems, and occasionally explaining to non-tech friends why their Wi-Fi isn’t working (spoiler: it’s always the router).
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
 
     if (
         user.portfolio.website &&
+        user.portfolio.strictOrigin &&
         // we let thru requests without any origin
         origin &&
         !isEqual(origin, getDomainFromUrl(process.env.SITE_URL!)) &&
@@ -115,7 +117,6 @@ export async function POST(req: NextRequest) {
 
     let onComplete: () => void;
 
-    console.log(1);
     if (user.mistralKey) {
         const queue = apiKeysQueues.has(mistralKey)
             ? apiKeysQueues.get(mistralKey)!
@@ -134,8 +135,6 @@ export async function POST(req: NextRequest) {
     } else {
         onComplete = await mainQueue.schedule(req);
     }
-
-    console.log(2);
 
     try {
         const stream = await chatbot(

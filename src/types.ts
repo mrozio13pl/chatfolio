@@ -2,6 +2,7 @@ export type AuthStatus = 'unauthorized' | 'authorized';
 
 export interface Portfolio {
     website: string;
+    strictOrigin: boolean;
     socials: string[];
     about: string;
 }

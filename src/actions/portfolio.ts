@@ -24,21 +24,28 @@ const socialLinksSchema = v.optional(
 );
 
 const portfolioSchema = v.objectAsync({
-    website: v.pipeAsync(
-        v.string(),
-        v.customAsync<string>(async (value) => {
-            return !isLocalhost(value as string);
-        }, 'Website can not be localhost'),
-        v.custom<string>(
-            (value) => isValidDomain(value as string),
-            'Invalid domain',
-        ),
-        v.transform(getDomainFromUrl),
-        v.transform(addProtocolToDomain),
-        v.url('Invalid website'),
-        v.transform(withoutProtocol),
-        v.maxLength(255, 'Website is too long'),
+    website: v.unionAsync(
+        [
+            v.pipeAsync(
+                v.string(),
+                v.customAsync<string>(async (value) => {
+                    return !isLocalhost(value as string);
+                }, 'Website can not be localhost'),
+                v.custom<string>(
+                    (value) => isValidDomain(value as string),
+                    'Invalid domain',
+                ),
+                v.transform(getDomainFromUrl),
+                v.transform(addProtocolToDomain),
+                v.url('Invalid website'),
+                v.transform(withoutProtocol),
+                v.maxLength(255, 'Website is too long'),
+            ),
+            v.literal(''),
+        ],
+        'Invalid domain',
     ),
+    strictOrigin: v.optional(v.boolean(), false),
     socials: socialLinksSchema,
     about: v.pipe(v.string(), v.maxLength(10000, 'About is too long')),
 });
