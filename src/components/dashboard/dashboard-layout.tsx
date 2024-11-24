@@ -6,6 +6,7 @@ import { Navbar } from '~/components/navbar';
 import { Separator } from '~/components/ui/separator';
 import { Section } from '~/components/section';
 import { Chat } from '~/components/dashboard/chat';
+import { Button } from '~/components/ui/button';
 import { useDashboard } from '~/hooks/dashboard';
 import { api } from '~/lib/api';
 import { redirect } from 'next/navigation';
@@ -28,7 +29,14 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     }
 
     if (status === 'unauthorized') {
-        redirect('/logout');
+        return (
+            <Section>
+                <h1 className="text-4xl font-primary mb-2">Unauthorized</h1>
+                <Button variant="secondary" onClick={() => redirect('/login')}>
+                    Login
+                </Button>
+            </Section>
+        );
     }
 
     if (!dashboard) {
