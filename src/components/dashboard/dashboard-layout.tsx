@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { useDashboard } from '~/hooks/dashboard';
 import { api } from '~/lib/api';
 import { redirect } from 'next/navigation';
+import { HTTPError } from 'ky';
 import type { Dashboard } from '~/types';
 import type { ReactNode } from 'react';
 
@@ -24,6 +25,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             ).json<Dashboard>();
             setDashboard(dashboardData);
         } catch (error) {
+            if (error instanceof HTTPError && error.response.status >= 500) {
+                redirect('/logout');
+            }
+
             console.error(error);
         }
     }
