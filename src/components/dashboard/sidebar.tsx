@@ -10,7 +10,7 @@ const paths: string[] = [
     'information',
     'model',
     'mistral-key',
-    'stats',
+    'messages',
     'docs',
 ];
 

@@ -1,8 +1,8 @@
-import { generateIdFromEntropySize } from 'lucia';
 import mongoose from 'mongoose';
 import ms from 'ms';
 import { nanoid } from 'nanoid';
-import type { MessageCounter, Model, Portfolio } from '~/types';
+import { generateIdFromEntropySize } from 'lucia';
+import type { Chat, Message, MessageCounter, Model, Portfolio } from '~/types';
 
 export interface User {
     _id: string;
@@ -15,6 +15,7 @@ export interface User {
     portfolio: Portfolio;
     model: Model;
     mistralKey?: string;
+    chats: Chat[];
     messagesCounter: MessageCounter[];
 }
 
@@ -26,6 +27,25 @@ const messagesCounterSchema = new mongoose.Schema(
     {
         _id: false,
     },
+);
+
+const messageSchema = new mongoose.Schema<Message>(
+    {
+        role: {
+            type: String,
+            enum: ['assistant', 'user'] satisfies Message['role'][],
+        },
+        content: { type: String, trim: true },
+    },
+    { _id: false },
+);
+
+const chatSchema = new mongoose.Schema(
+    {
+        date: { type: Date, default: Date.now },
+        messages: [messageSchema],
+    },
+    { _id: false },
 );
 
 const portfolioSchema = new mongoose.Schema<Portfolio>(
@@ -69,6 +89,7 @@ const userSchema = new mongoose.Schema<User>(
         portfolio: { type: portfolioSchema, default: () => ({}) },
         model: { type: modelSchema, default: () => ({}) },
         mistralKey: { type: String, trim: true, required: false },
+        chats: { type: [chatSchema], default: [] },
         messagesCounter: { type: [messagesCounterSchema], default: [] },
     },
     {
@@ -78,8 +99,16 @@ const userSchema = new mongoose.Schema<User>(
 );
 
 userSchema.pre('save', async function (next) {
+    const now = new Date();
+
+    if (this.chats) {
+        this.chats = this.chats.filter((chat) => {
+            const daysOld = (now.getTime() - chat.date.getTime()) / ms('1d');
+            return daysOld <= 7;
+        });
+    }
+
     if (this.messagesCounter) {
-        const now = new Date();
         this.messagesCounter = this.messagesCounter.filter((message) => {
             const daysOld = (now.getTime() - message.date.getTime()) / ms('1d');
             return daysOld <= 30;

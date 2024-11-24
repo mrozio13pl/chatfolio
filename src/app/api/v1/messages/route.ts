@@ -5,11 +5,12 @@ import { decrypt } from '~/lib/hash';
 import { getDomainFromUrl, getRequestOrigin, isLocalhost } from '~/lib/url';
 import { RequestQueue } from '~/lib/request-queue';
 import { isSameDay } from '~/lib/utils';
-import { UserModel } from '~/models/user';
+import { UserModel, type User } from '~/models/user';
 import { isEqual } from 'ufo';
 import { HTTPError } from 'ky';
 import * as v from 'valibot';
 import type { Model, Portfolio } from '~/types';
+import type { Document } from 'mongoose';
 
 enum Role {
     User = 'user',
@@ -90,14 +91,14 @@ export async function POST(req: NextRequest) {
 
     await connectMongoose();
 
-    const user =
+    const user: User & Document =
         clientId === 'demo'
-            ? {
+            ? ({
                   portfolio: demoPortfolio,
                   model: demoModel,
                   messagesCounter: [],
-              }
-            : await UserModel.findOne({ clientId })!;
+              } as unknown as User & Document)
+            : (await UserModel.findOne({ clientId }))!;
 
     const origin = getRequestOrigin(req);
 
@@ -159,6 +160,8 @@ export async function POST(req: NextRequest) {
 
     await user.save?.();
 
+    let chatbotResponse = '';
+
     try {
         const stream = await chatbot(
             message.slice(0, 1000),
@@ -176,8 +179,8 @@ export async function POST(req: NextRequest) {
                     async start(controller) {
                         const reader = stream.getReader();
                         const decoder = new TextDecoder('utf-8');
-                        let buffer = '';
                         let done = false;
+                        let buffer = '';
                         while (!done) {
                             const { value, done: readerDone } =
                                 await reader.read();
@@ -199,6 +202,25 @@ export async function POST(req: NextRequest) {
                                             chunk?.replace('data: ', '') ===
                                             '[DONE]'
                                         ) {
+                                            user.chats.push({
+                                                date: new Date(),
+                                                messages: [
+                                                    {
+                                                        role: 'user',
+                                                        content: message.slice(
+                                                            0,
+                                                            1000,
+                                                        ),
+                                                    },
+                                                    {
+                                                        role: 'assistant',
+                                                        content:
+                                                            chatbotResponse,
+                                                    },
+                                                ],
+                                            });
+                                            await user.save?.();
+
                                             done = true;
                                             break;
                                         }
@@ -213,6 +235,7 @@ export async function POST(req: NextRequest) {
                                         if (content) {
                                             // process.stdout.write(content);
                                             controller.enqueue(content);
+                                            chatbotResponse += content;
                                         }
                                     }
                                 }
@@ -229,7 +252,27 @@ export async function POST(req: NextRequest) {
                 },
             );
         } else {
-            return NextResponse.json({ success: true, content: stream });
+            chatbotResponse = stream as string;
+
+            user.chats.push({
+                date: new Date(),
+                messages: [
+                    {
+                        role: 'user',
+                        content: message.slice(0, 1000),
+                    },
+                    {
+                        role: 'assistant',
+                        content: chatbotResponse,
+                    },
+                ],
+            });
+            await user.save?.();
+
+            return NextResponse.json({
+                success: true,
+                content: stream,
+            });
         }
     } catch (error: any) {
         if (error instanceof HTTPError) {

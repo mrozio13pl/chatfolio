@@ -22,5 +22,6 @@ export async function GET() {
         model: userModel.model,
         portfolio: userModel.portfolio,
         messagesCounter: userModel.messagesCounter,
+        chats: userModel.chats,
     } satisfies Dashboard);
 }

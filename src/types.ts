@@ -25,6 +25,11 @@ export interface MessageCounter {
     count: number;
 }
 
+export interface Chat {
+    date: Date;
+    messages: Message[];
+}
+
 export interface MistralModel {
     id: string;
     object: 'model';
@@ -51,6 +56,7 @@ export interface Dashboard {
     model: Model;
     portfolio: Portfolio;
     messagesCounter: MessageCounter[];
+    chats: Chat[];
 }
 
 export type ActionResults =
